@@ -39,5 +39,6 @@ public class MainTest {
         String printout = printoutBuffer.toString();
         String expectedOutput = "started";
         assertTrue(printout.contains(expectedOutput), "UI did not start correctly.");
-    }    
+    }
+    
 }
