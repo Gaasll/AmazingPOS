@@ -18,6 +18,10 @@ public class Sale {
 	private SaleDTO saleSpec;
 
     private List<Observer> Observers = new ArrayList<>();
+
+    private boolean inProgress;
+
+    private Receipt receipt;
     
     /**
      * Creates a new instance and saves the time of the sale.
@@ -126,15 +130,23 @@ public class Sale {
 	}
 	
 	/**
-	* Prints a receipt for the current sale 
+	* Returns the receipt
 	*/
-	public void printReceipt(Printer printer) {
-		Receipt receipt = new Receipt(saleSpec);
-		printer.printReceipt(receipt);
+	public Receipt getReceipt(Sale sale) {
+        notifyObservers();
+	this.receipt = new Receipt(saleSpec);
+         return receipt;
 	}
 
-    public SaleDTO endSale(String string, String string2) {
-        return null;
+    public SaleDTO endSale(String POS) { //stores and makes dto from sale
+        double totalVAT = 0;
+        for (Item i : itemsInCurrentSale) {
+            totalVAT += i.VAT * i.itemPrice * i.quantity;
+        }
+        SaleDTO thisSale = new SaleDTO(totalPrice, totalVAT, itemsInCurrentSale, POS);
+        this.inProgress = false;
+
+        return thisSale;
     }
 
 	public Object getLastItemNameInList() {
@@ -154,7 +166,7 @@ public class Sale {
     }
 
         
-    private void notifyObservers(){
+    public void notifyObservers(){
         for(Observer obs : Observers){
             obs.newSale(this.totalPrice);
         }
