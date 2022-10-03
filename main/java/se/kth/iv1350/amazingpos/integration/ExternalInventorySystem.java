@@ -1,6 +1,11 @@
 package se.kth.iv1350.amazingpos.integration;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.*;
+
 import se.kth.iv1350.amazingpos.DTO.ItemDTO;
+import se.kth.iv1350.amazingpos.model.Item;
 
 /**
 *
@@ -8,6 +13,7 @@ import se.kth.iv1350.amazingpos.DTO.ItemDTO;
 */
 public class ExternalInventorySystem {
     private static ExternalInventorySystem instance = null;
+    private static List<Item> currentInventory = new ArrayList<>();
     
 
    
@@ -19,35 +25,54 @@ public class ExternalInventorySystem {
      * @return true if enough items exist
      */
     public boolean inStock(int id, int quantity) {
-        //checks if multiple items of the same ID are in stock, for example 4 bananas
-       
+        if (currentInventory.size() >= id) {
+
+            Item it = currentInventory.get(id);
+            if (it.getQuantity() > 0)
+                return true;
+        }
+
         return false;
+    
     }
 
 
 
 
     public static ExternalInventorySystem getInstance() {
-        return null;
+         
+         try {
+            Scanner scnr = new Scanner(new File("src/main/se/kth/salessystem/integration/ids.txt"));
+            String[] temp;
+            Item item;
+            int line = 0;
+            while (scnr.hasNextLine()) {
+                temp = scnr.nextLine().split("#");
+                item = new Item(Integer.parseInt(temp[3]), Double.parseDouble(temp[0]), Double.parseDouble(temp[1]), temp[2], line);
+                currentInventory.add(item); 
+                line++;
+            }
+        } catch (FileNotFoundException e) { 
+            System.out.println("Error. File not found. ");
+            e.printStackTrace();
+        }
+        return instance;
     }
 
 
 
 
-    public ItemDTO retrieveItemInformation(int i) {
-        return null;
+    public Item getItem(int id) throws InvalidItemException, DatabaseException{
+        if(id == 100) throw new DatabaseException();
+        
+        for (Item item : currentInventory) {
+			if (item.getItemIdentifier() == id) {
+					return item;
+			}
+		}
+		throw new InvalidItemException("Identifier: " + id + ", Is not valid!");
     }
 
-
-
-
-    public void getItem(int i) {
-    }
-
-
-
-
-  
 
     
 }
